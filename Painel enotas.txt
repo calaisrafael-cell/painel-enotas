@@ -1,0 +1,2861 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>eNotas - Painel de Vendas</title>
+<style>
+  body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f8f9fb;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Menu Superior */
+  .top-menu {
+    background: #fff;
+    border-bottom: 2px solid #e5e5e5;
+    padding: 0;
+    margin-bottom: 30px;
+  }
+
+  .top-menu-items {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0;
+  }
+
+  .menu-item {
+    padding: 16px 24px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .menu-item:hover {
+    background: #f8f9fb;
+    color: #333;
+  }
+
+  .menu-item.active {
+    color: #1abc9c;
+    border-bottom-color: #1abc9c;
+  }
+
+  .menu-item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Submenu Dropdown */
+  .submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 180px;
+    z-index: 100;
+    margin-top: 3px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .menu-item:hover .submenu {
+    display: block;
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .submenu-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #555;
+    font-size: 14px;
+    transition: background 0.2s;
+  }
+
+  .submenu-item:hover {
+    background: #f8f9fb;
+  }
+
+  .submenu-item svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Apps Page */
+  .apps-page {
+    display: none;
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+    position: relative;
+  }
+
+  .apps-page.active {
+    display: block !important;
+  }
+
+  .apps-close-btn {
+    position: fixed;
+    top: 80px;
+    right: 30px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e53935;
+    border: 2px solid #fff;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 999;
+    transition: all 0.2s;
+  }
+
+  .apps-close-btn:hover {
+    background: #c62828;
+    transform: scale(1.1);
+  }
+
+  .apps-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .apps-icon {
+    width: 60px;
+    height: 60px;
+    background: #5a6c7d;
+    border-radius: 12px;
+    display: flex;
+    margin: 0 auto 20px;
+    position: relative;
+  }
+
+  .apps-icon::before,
+  .apps-icon::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+    border-radius: 3px;
+  }
+
+  .apps-icon::before {
+    width: 22px;
+    height: 22px;
+    top: 10px;
+    left: 10px;
+  }
+
+  .apps-icon::after {
+    width: 22px;
+    height: 22px;
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .apps-header h2 {
+    font-size: 24px;
+    color: #5a6c7d;
+    margin: 0 0 8px;
+  }
+
+  .apps-header p {
+    color: #666;
+    margin: 0;
+  }
+
+  .apps-header a {
+    color: #1abc9c;
+    text-decoration: none;
+  }
+
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .app-card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .app-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .app-info h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    color: #333;
+  }
+
+  .app-info p {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .app-logo {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-logo img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .btn-ativar-app {
+    background: #fff;
+    border: 1px solid #1abc9c;
+    color: #1abc9c;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .btn-ativar-app:hover {
+    background: #1abc9c;
+    color: #fff;
+  }
+
+  /* Modal de Integração */
+  .integracao-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .integracao-modal.open {
+    display: flex !important;
+  }
+
+  .integracao-content {
+    width: min(800px, 92%);
+    max-height: 85vh;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .integracao-header {
+    background: #fff;
+    padding: 24px;
+    border-bottom: 1px solid #e5e5e5;
+    text-align: center;
+  }
+
+  .integracao-logo {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 16px;
+    background: #ff6b35;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #fff;
+  }
+
+  .integracao-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  .integracao-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .form-group input {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .form-help {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .form-help a {
+    color: #1a73e8;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .visualizar-btn {
+    background: transparent;
+    border: none;
+    color: #1a73e8;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-size: 13px;
+  }
+
+  .integracao-actions {
+    padding: 20px 24px;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .btn-cancelar, .btn-salvar {
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .btn-cancelar {
+    background: #fff;
+    border: 1px solid #ccc;
+    color: #666;
+  }
+
+  .btn-salvar {
+    background: #1abc9c;
+    border: none;
+    color: #fff;
+  }
+
+  .btn-salvar:hover {
+    background: #16a085;
+  }
+
+  /* Página de Vendas */
+  .vendas-page {
+    display: block;
+  }
+
+  .vendas-page.hidden {
+    display: none;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 30px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+
+  /* BANNERS SUPERIORES */
+  .banners {
+    display: flex;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .banner {
+    flex: 1;
+    padding: 16px 20px;
+    position: relative;
+    color: #fff;
+    transition: all 0.3s ease;
+  }
+
+  .banner h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .banner ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #fff;
+  }
+
+  .banner a {
+    color: #cce0ff;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .banner.roxo { background: #7b3fc5; }
+  .banner.verde { background: #1abc9c; }
+
+  .expandir {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    opacity: 0.8;
+  }
+
+  .expandir:hover { opacity: 1; }
+
+  .banner.expandido {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    overflow-y: auto;
+    border-radius: 0;
+    padding: 40px;
+  }
+
+  .banner.expandido .expandir::after {
+    content: "✕";
+  }
+
+  /* X dentro do banner ao expandir (no canto superior direito, dentro do overlay) */
+  .fechar-internal {
+    display: none; /* oculto por padrão; aparece apenas no expandido */
+  }
+
+  /* Ao expandir, colocar o X dentro do overlay, no canto superior direito */
+  .banner.expandido .fechar-internal {
+    display: inline-flex;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 4px;
+    border: 2px solid #fff;
+    background: #e53935;
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 60;
+  }
+  .banner.expandido .fechar-internal:hover {
+    background: #c62828;
+  }
+
+  /* Ocultar o botão expandir ao expandir o banner */
+  .banner.expandido .expandir {
+    display: none;
+  }
+
+  /* Ações em Massa – estilo da área com título e dropdown */
+  .acoes {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    background: #fafafa;
+    position: relative;
+  }
+
+  .acoes .titulo {
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fff;
+  }
+
+  .acoes-dropdown {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: calc(100% + 6px);
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    z-index: 40;
+  }
+
+  .acoes-dropdown button {
+    display: block;
+    width: 240px;
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 2px 0;
+  }
+
+  .acoes-dropdown button:hover {
+    background: #eaeaea;
+  }
+
+  /* botão de filtro (funil) */
+  .btnFiltro {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+  }
+  .btnFiltro svg {
+    width: 16px; height: 16px;
+  }
+
+  .filtros-panel {
+    display: none;
+    position: absolute;
+    right: 14px;
+    top: 46px;
+    width: 320px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.15);
+    z-index: 50;
+  }
+
+  .filtros-panel h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .filtros-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 6px 0;
+  }
+
+  .filtros-panel label {
+    font-size: 12px;
+    color: #555;
+  }
+
+  .filtros-panel input, .filtros-panel select {
+    font: inherit;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+
+  .filtros-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+
+  .filtros-actions button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .filtros-actions button:hover {
+    background: #f0f0f0;
+  }
+
+  /* Chatbot flutuante */
+  .chatbot-bubble {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #7b3fc5, #9b5fd5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(123, 63, 197, 0.4);
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .chatbot-bubble:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(123, 63, 197, 0.6);
+  }
+
+  .chatbot-bubble svg {
+    width: 32px;
+    height: 32px;
+    fill: #fff;
+  }
+
+  .chatbot-window {
+    display: none;
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    flex-direction: column;
+    z-index: 1001;
+    overflow: hidden;
+  }
+
+  .chatbot-window.open {
+    display: flex;
+  }
+
+  .chatbot-header {
+    background: linear-gradient(135deg, #7b3fc5, #9b5fd5);
+    color: #fff;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .chatbot-header h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .chatbot-close {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+  }
+
+  .chatbot-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    background: #f8f9fb;
+  }
+
+  .chat-message {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-message.bot {
+    align-items: flex-start;
+  }
+
+  .chat-message.user {
+    align-items: flex-end;
+  }
+
+  .message-bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .chat-message.bot .message-bubble {
+    background: #fff;
+    color: #333;
+    border: 1px solid #e0e0e0;
+  }
+
+  .chat-message.user .message-bubble {
+    background: #7b3fc5;
+    color: #fff;
+  }
+
+  .chatbot-input {
+    padding: 12px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    gap: 8px;
+  }
+
+  .chatbot-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 14px;
+  }
+
+  .chatbot-input button {
+    background: #7b3fc5;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .chatbot-input button:hover {
+    background: #6b2fb5;
+  }
+
+  /* Tabela de notas não emitidas */
+  .notas-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+  }
+
+  .notas-table th,
+  .notas-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 13px;
+  }
+
+  .notas-table th {
+    background: #f5f5f5;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .notas-table tbody tr:hover {
+    background: #fafafa;
+  }
+
+  .btn-corrigir {
+    background: #7b3fc5;
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .btn-corrigir:hover {
+    background: #6b2fb5;
+  }
+
+  /* Modal de visualização de nota fiscal */
+  .nota-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+
+  .nota-modal.open {
+    display: flex;
+  }
+
+  .nota-modal-content {
+    width: min(800px, 92%);
+    max-height: 85vh;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nota-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .nota-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+  }
+
+  .nota-modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-download, .btn-close-modal {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-download {
+    background: #7b3fc5;
+    color: #fff;
+    border-color: #7b3fc5;
+  }
+
+  .btn-download:hover {
+    background: #6b2fb5;
+  }
+
+  .btn-close-modal:hover {
+    background: #f0f0f0;
+  }
+
+  .nota-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .nota-fiscal {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #000;
+  }
+
+  .nota-fiscal-header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .nota-fiscal-title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .nota-fiscal-subtitle {
+    font-size: 11px;
+    margin: 2px 0;
+  }
+
+  .nota-fiscal-section {
+    margin-bottom: 16px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+  }
+
+  .nota-fiscal-section-title {
+    font-weight: bold;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #333;
+    text-transform: uppercase;
+  }
+
+  .nota-fiscal-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 4px 0;
+  }
+
+  .nota-fiscal-label {
+    font-weight: bold;
+  }
+
+  .nota-fiscal-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .nota-fiscal-full-width {
+    grid-column: 1 / -1;
+  }
+
+  /* TABELA */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    background: #f2f3f5;
+    color: #555;
+    text-align: left;
+  }
+
+  th, td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+  }
+
+  tbody {
+    display: block;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  thead, tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  tbody tr:hover {
+    background: #fafafa;
+  }
+
+  .checkboxCol {
+    width: 40px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .badge.emitida {
+    background: #d4f5e0;
+    color: #2e8b57;
+  }
+
+  .badge.pendente {
+    background: #ffe6b3;
+    color: #a87b00;
+  }
+
+  .badge.erro {
+    background: #ffebee;
+    color: #c62828;
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+  }
+
+  .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+
+  .btn-acao {
+    background: #7b3fc5;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .btn-acao:hover {
+    background: #6b2fb5;
+  }
+
+  /* AÇÕES EM MASSA E PAGINAÇÃO */
+  .paginacao {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content:flex-end;
+    padding: 12px 20px;
+  }
+
+  .paginacao button {
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .paginacao button:hover {
+    background: #f1f1f1;
+  }
+
+  /* Página info (texto de paginação) */
+  #paginaInfo {
+    color: #555;
+    font-size: 14px;
+  }
+
+  /* Popup inline (não sair da tela) - versão solicitada */
+  .inlinePopupBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  .inlinePopupContent {
+    width: min(720px, 92%);
+    background: #fff;
+    border-radius: 6px;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    position: relative;
+  }
+  /* X pequeno e quase invisível; aparece ao passar o mouse */
+  .inlinePopupClose {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    border: none;
+    background: rgba(0,0,0,.15);
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0.25;
+    transition: opacity .2s;
+  }
+  .inlinePopupBackdrop:hover .inlinePopupClose {
+    opacity: 0.85;
+  }
+  .inlinePopupContent p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+  }
+
+  /* Cert modal (layout semelhante ao print) */
+  #certModal {
+    display: none;
+  }
+  .modal {
+    display: none;
+  }
+  #certModal.modalVisible {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  .certContent {
+    width: min(900px, 92%);
+    background: #fff;
+    border-radius: 6px;
+    padding: 16px 20px 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  }
+  .certHeader {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  .progressWrap {
+    height: 6px;
+    background: #eee;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 8px 0 12px;
+  }
+  .progressBar {
+    height: 6px;
+    background: #4a6be0;
+    width: 60%;
+  }
+  .alertBar {
+    background: #d9eefc;
+    color: #0d3b66;
+    border-left: 4px solid #4a90e2;
+    padding: 12px 14px;
+    border-radius: 4px;
+    margin: 12px 0;
+  }
+  .dropArea {
+    height: 120px;
+    border: 2px dashed #d0d0d0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    background: #f9f9f9;
+    margin: 6px 0 12px;
+  }
+  .certForm {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 8px 12px;
+    align-items: center;
+    margin: 4px 0 8px;
+  }
+  .certForm input {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .modalActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+  }
+  .btnVoltar, .btnConcluir {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #fff;
+    cursor: pointer;
+  }
+  .btnConcluir {
+    background: #18a999;
+    border-color: #0b8a6b;
+    color: #fff;
+  }
+  .btnConcluir:hover { background: #128f8b; }
+  .btnVoltar { background: #f5f5f5; }
+
+</style>
+</head>
+<body>
+
+<!-- Menu Superior -->
+<div class="top-menu">
+  <div class="top-menu-items">
+    <div class="menu-item active" onclick="showVendas()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <polyline points="19 12 12 19 5 12"></polyline>
+      </svg>
+      Vendas
+    </div>
+    <div class="menu-item" id="menuGerenciar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M12 1v6m0 6v6m8.66-13.66l-4.24 4.24m-8.48 0L3.34 4.34M23 12h-6m-6 0H1m17.66 8.66l-4.24-4.24m-8.48 0l-4.24 4.24"></path>
+      </svg>
+      Gerenciar
+      <div class="submenu" id="submenuGerenciar">
+        <div class="submenu-item" id="btnClientes" onclick="alert('Clientes em desenvolvimento')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Clientes
+        </div>
+        <div class="submenu-item" id="btnProdutos" onclick="alert('Produtos em desenvolvimento')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          Produtos
+        </div>
+        <div class="submenu-item" id="btnApps" onclick="showApps()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Apps
+        </div>
+      </div>
+    </div>
+    <div class="menu-item" onclick="alert('Empresa em desenvolvimento')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      Empresa
+    </div>
+  </div>
+</div>
+
+<!-- Página de Vendas (painel atual) -->
+<div id="vendasPage" class="vendas-page">
+
+<div class="container">
+
+  <!-- BANNERS -->
+  <div class="banners">
+    <div class="banner roxo" id="novidades">
+      <span class="expandir" onclick="expandirBanner('novidades')">⛶</span>
+      <button class="fechar-internal" aria-label="Fechar novidades" onclick="fecharBanner('novidades')">✖</button>
+      <h3>🆕 Novidades</h3>
+      <ul>
+        <li>Fique por dentro das novidades da reforma tributária, que serão aplicadas a partir de Janeiro/2026. Clique <a href="#" onclick="openInlineMessage('Antecipando-se ao cronograma oficial do Governo, o eNotas começará a fazer testes internos já com os campos dos novos tributos IBS/CBS nas notas fiscais neste mês de outubro. O objetivo é garantir que esteja tudo pronto em dezembro, antes da virada, portanto, para a Reforma Tributária. É nossa missão garantir que todos os nossos clientes estejam sempre em compliance fiscal. Portanto, estaremos sempre prontos para cada nova fase da Reforma Tributária, para que você possa continuar focado apenas nas suas vendas, enquanto nós cuidamos das notas fiscais. 🚀😊. Para mais informações, clique aqui.', 'https://www.gov.br/fazenda/pt-br/acesso-a-informacao/acoes-e-programas/reforma-tributaria')">aqui</a>.</li>
+        <li>Agora você também pode emitir notas de seus produtos físicos vendidos na Hotmart, pelo eNotas. Para saber mais, clique <a href="#" onclick="event.preventDefault(); openProductInfoPopup();">aqui</a>.</li>
+      </ul>
+    </div>
+
+    <div class="banner verde" id="avisos">
+      <span class="expandir" onclick="expandirBanner('avisos')">⛶</span>
+      <button class="fechar-internal" aria-label="Fechar avisos" onclick="fecharBanner('avisos')">✖</button>
+      <h3>🚨 Avisos</h3>
+      <ul>
+        <li>Você possui <b>20 notas fiscais não emitidas</b>, clique <a href="#" onclick="event.preventDefault(); openNotasNaoEmitidasPopup();" style="color:#1a73e8; text-decoration:underline; cursor:pointer;">aqui</a> para detalhes.</li>
+        <li>O seu certificado digital irá vencer em <b>10 dias</b>, clique <a href="#" onclick="openCertModal(event)" style="color:#1a73e8; text-decoration:underline; cursor:pointer;">aqui</a> para atualizá-lo.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- AÇÕES EM MASSA + FILTROS -->
+  <div class="acoes" style="position:relative;">
+    <div class="titulo" onclick="toggleAcoesDropdown()">Ações em massa</div>
+    <div id="acoesDropdown" class="acoes-dropdown" aria-label="Ações em massa dropdown" style="display:none;">
+      <button onclick="handleAcoes('gerar')">Gerar nota fiscal</button>
+      <button onclick="handleAcoes('copiar')">Copiar</button>
+      <button onclick="handleAcoes('cancelar')">Cancelar</button>
+      <button onclick="handleAcoes('enviar')">Enviar por e-mail</button>
+    </div>
+
+    <button id="btnFiltro" class="btnFiltro" onclick="toggleFiltroPanel()" aria-label="Filtros" title="Filtros" style="margin-left: 12px;">
+      <span style="display:inline-flex; align-items:center; gap:6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="Filtro">
+          <path d="M3 5h18M6 12h12M10 19h4"/>
+        </svg>
+        Filtros
+      </span>
+    </button>
+
+    <div id="filtrosPanel" class="filtros-panel" aria-label="Filtros panel" style="display:none;">
+      <h4>Filtros</h4>
+      <div class="filtros-row">
+        <label>Data inicio</label>
+        <input type="date" id="fDataInicio" />
+      </div>
+      <div class="filtros-row">
+        <label>Data fim</label>
+        <input type="date" id="fDataFim" />
+      </div>
+      <div class="filtros-row">
+        <label>Cliente</label>
+        <input type="text" id="fCliente" placeholder="Nome do cliente" />
+      </div>
+      <div class="filtros-row">
+        <label>Produto</label>
+        <input type="text" id="fProduto" placeholder="Produto" />
+      </div>
+      <div class="filtros-row">
+        <label>Canal</label>
+        <select id="fCanal">
+          <option value="">Todos</option>
+          <option>Venda Manual</option>
+          <option>Hotmart</option>
+        </select>
+      </div>
+      <div class="filtros-row">
+        <label>Status</label>
+        <select id="fStatus">
+          <option value="">Todos</option>
+          <option value="Emitida">Emitida</option>
+          <option value="Pendente">Pendente</option>
+        </select>
+      </div>
+      <div class="filtros-actions">
+        <button onclick="clearFilters()">Limpar</button>
+        <button onclick="applyFiltersFromUI()" style="background: #7b3fc5; color: #fff; border-color: #7b3fc5;">Aplicar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABELA -->
+  <table>
+    <thead>
+      <tr>
+        <th class="checkboxCol"></th>
+        <th>Data</th>
+        <th>Produto</th>
+        <th>Cliente</th>
+        <th>Valor</th>
+        <th>Notas Fiscais</th>
+        <th>Canal</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaVendas">
+    </tbody>
+  </table>
+
+  <!-- PAGINAÇÃO COM SETAS -->
+  <div class="paginacao" aria-label="Navegação de páginas" style="padding:0 20px 12px;">
+    <button id="btnAnterior" onclick="anterior()" aria-label="Página anterior" title="Anterior" style="border:1px solid #ccc; background:#fff; padding:4px 8px; border-radius:6px; cursor:pointer">&lt;</button>
+    <span id="paginaInfo" style="margin:0 10px; color:#555;">Página 1 de 3</span>
+    <select id="paginaSelector" onchange="goToPage(this.value)" style="border:1px solid #ccc; border-radius:6px; padding:4px 6px;">
+    </select>
+    <button id="btnProximo" onclick="proxima()" aria-label="Próxima página" title="Próxima" style="border:1px solid #ccc; background:#fff; padding:4px 8px; border-radius:6px; cursor:pointer">&gt;</button>
+  </div>
+
+</div>
+
+<!-- Certificado - modal (pop-up estilo print) -->
+<div id="certModal" class="modal" aria-label="Modal Certificado Digital">
+  <div class="certContent certModalContent" role="dialog" aria-labelledby="certModalTitle">
+    <div class="certHeader" id="certModalTitle">Informações de sua empresa</div>
+    <div class="progressWrap" aria-label="Progresso">
+      <div class="progressBar"></div>
+    </div>
+    <div class="alertBar">
+      Está sem um Certificado Digital? Adquira com uma empresa parceira e acelere o processo de compra ou renovação
+    </div>
+    <div class="dropArea" aria-label="Área de carregamento de certificado">
+      Arraste o arquivo .PFX ou .P12 do certificado digital ou clique aqui para selecioná-lo.
+    </div>
+
+    <div class="certForm" aria-label="Formulario certificado">
+      <label>Certificado digital</label>
+      <input type="text" value="LBR MENTORIA E TREINAMENTOS LTDA:586800587000107" readonly />
+      <label>Valido até</label>
+      <input type="date" value="2025-10-15" readonly />
+      <label>Senha</label>
+      <input type="password" placeholder="" />
+    </div>
+
+    <div class="modalActions">
+      <button class="btnVoltar" onclick="closeCertModal()">Voltar</button>
+      <button class="btnConcluir" onclick="concluirCertModal()">Concluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de visualização de nota fiscal -->
+<div class="nota-modal" id="notaModal">
+  <div class="nota-modal-content">
+    <div class="nota-modal-header">
+      <h3>📄 Nota Fiscal de Serviços Eletrônica</h3>
+      <div class="nota-modal-actions">
+        <button class="btn-download" onclick="downloadNota()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Baixar
+        </button>
+        <button class="btn-close-modal" onclick="closeNotaModal()">✕</button>
+      </div>
+    </div>
+    <div class="nota-modal-body">
+      <div class="nota-fiscal">
+        <div class="nota-fiscal-header">
+          <div class="nota-fiscal-title">NFS-e - NOTA FISCAL DE SERVIÇOS ELETRÔNICA - RPS 2142</div>
+          <div class="nota-fiscal-subtitle">Série 1, emitido em: 03/10/2025</div>
+        </div>
+
+        <div class="nota-fiscal-section">
+          <div class="nota-fiscal-section-title">Dados do Prestador</div>
+          <div><strong>LBR MENTORIA E TREINAMENTOS LTDA</strong></div>
+          <div>RUA MANOEL EUFRÁSIO, 403 APT 171 ANDAR 16 COND RENAISSANCE ED</div>
+          <div>JUVEVÊ - Curitiba - PR - 80030440</div>
+          <div class="nota-fiscal-info-grid">
+            <div>TELEFONE: 4192284899</div>
+            <div>EMAIL: lilliana.bortolini@gmail.com</div>
+            <div>CNPJ: 58.680.587/0001-07</div>
+            <div>INSCRIÇÃO MUNICIPAL: 12107664</div>
+          </div>
+        </div>
+
+        <div class="nota-fiscal-section">
+          <div class="nota-fiscal-section-title">Informações da Nota</div>
+          <div class="nota-fiscal-info-grid">
+            <div><span class="nota-fiscal-label">NÚMERO DA NOTA:</span> 2194</div>
+            <div><span class="nota-fiscal-label">COMPETÊNCIA:</span> 10/2025</div>
+            <div><span class="nota-fiscal-label">CÓDIGO DE VERIFICAÇÃO:</span> O4UUCA06</div>
+            <div><span class="nota-fiscal-label">DATA DE EMISSÃO:</span> 03/10/2025 10:32:35</div>
+          </div>
+        </div>
+
+        <div class="nota-fiscal-section">
+          <div class="nota-fiscal-section-title">Dados do Tomador</div>
+          <div class="nota-fiscal-info-grid">
+            <div class="nota-fiscal-full-width"><span class="nota-fiscal-label">NOME / RAZÃO SOCIAL:</span> Cliente Completo</div>
+            <div><span class="nota-fiscal-label">CPF / CNPJ:</span> 111.444.777-35</div>
+            <div><span class="nota-fiscal-label">E-MAIL:</span> teste@teste.com.br</div>
+            <div class="nota-fiscal-full-width"><span class="nota-fiscal-label">ENDEREÇO:</span> Avenida Assis Chateaubriand, 499</div>
+            <div><span class="nota-fiscal-label">BAIRRO:</span> Floresta</div>
+            <div><span class="nota-fiscal-label">CEP:</span> 30150101</div>
+            <div><span class="nota-fiscal-label">MUNICÍPIO:</span> Belo Horizonte</div>
+            <div><span class="nota-fiscal-label">UF:</span> MG</div>
+          </div>
+        </div>
+
+        <div class="nota-fiscal-section">
+          <div class="nota-fiscal-section-title">Discriminação dos Serviços</div>
+          <div style="margin-bottom: 8px;"><strong>Serviço de Teste</strong></div>
+          <div class="nota-fiscal-info-grid">
+            <div class="nota-fiscal-full-width"><span class="nota-fiscal-label">CÓDIGO DO SERVIÇO:</span> 802 - Treinamento em desenvolvimento profissional e gerencial</div>
+            <div class="nota-fiscal-full-width"><span class="nota-fiscal-label">MUNICÍPIO ONDE O SERVIÇO FOI PRESTADO:</span> 4106902 / Curitiba</div>
+            <div class="nota-fiscal-full-width"><span class="nota-fiscal-label">NATUREZA DA OPERAÇÃO:</span> Tributação no município</div>
+            <div class="nota-fiscal-full-width"><span class="nota-fiscal-label">REGIME ESPECIAL DE TRIBUTAÇÃO:</span> Microempresa Municipal</div>
+          </div>
+        </div>
+
+        <div class="nota-fiscal-section">
+          <div class="nota-fiscal-section-title">Valores</div>
+          <div class="nota-fiscal-info-grid">
+            <div><span class="nota-fiscal-label">VALOR DOS SERVIÇOS:</span> R$ 1,00</div>
+            <div><span class="nota-fiscal-label">(-) DESCONTOS:</span> R$ 0,00</div>
+            <div><span class="nota-fiscal-label">(-) DEDUÇÕES:</span> R$ 0,00</div>
+            <div><span class="nota-fiscal-label">(-) RETENÇÕES FEDERAIS:</span> R$ 0,00</div>
+            <div><span class="nota-fiscal-label">(=) BASE DE CÁLCULO:</span> R$ 1,00</div>
+            <div><span class="nota-fiscal-label">(-) ISS RETIDO NA FONTE:</span> R$ 0,00</div>
+            <div><span class="nota-fiscal-label">(x) ALÍQUOTA:</span> 4,00 %</div>
+            <div><span class="nota-fiscal-label">(=) VALOR DO ISS:</span> R$ 0,04</div>
+            <div class="nota-fiscal-full-width" style="margin-top: 8px; padding-top: 8px; border-top: 2px solid #333;">
+              <span class="nota-fiscal-label" style="font-size: 14px;">VALOR LÍQUIDO:</span> 
+              <span style="font-size: 14px; font-weight: bold;">R$ 1,00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="nota-fiscal-section">
+          <div class="nota-fiscal-section-title">Retenções Federais</div>
+          <div class="nota-fiscal-info-grid">
+            <div><span class="nota-fiscal-label">PIS:</span> R$ 0,00</div>
+            <div><span class="nota-fiscal-label">COFINS:</span> R$ 0,00</div>
+            <div><span class="nota-fiscal-label">IR:</span> R$ 0,00</div>
+            <div><span class="nota-fiscal-label">CSLL:</span> R$ 0,00</div>
+            <div><span class="nota-fiscal-label">INSS:</span> R$ 0,00</div>
+          </div>
+        </div>
+
+        <div class="nota-fiscal-section">
+          <div class="nota-fiscal-section-title">Outras Informações</div>
+          <div>Documento emitido por ME ou EPP optante pelo simples nacional;</div>
+          <div style="margin-top: 8px; font-style: italic; color: #666;">powered by eNotas Gateway</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<!-- Fim Página de Vendas -->
+
+<!-- Página de Apps -->
+<div id="appsPage" class="apps-page">
+  <button class="apps-close-btn" onclick="showVendas()" title="Fechar">✕</button>
+  <div class="apps-header">
+    <div class="apps-icon"></div>
+    <h2>Torne sua experiência no eNotas ainda mais incrível com a ajuda de apps que você vai adorar</h2>
+    <p>Exibindo os apps de <a href="#">todas as categorias</a></p>
+  </div>
+
+  <div class="apps-grid">
+    <div class="app-card">
+      <div class="app-card-header">
+        <div class="app-info">
+          <h3>Hotmart</h3>
+          <p>Canal de venda</p>
+        </div>
+        <div class="app-logo">
+          <svg width="50" height="50" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="25" fill="#ff6b35"/>
+            <path d="M15 20h20v3H15zm0 7h20v3H15z" fill="#fff"/>
+          </svg>
+        </div>
+      </div>
+      <button class="btn-ativar-app" id="btnAtivarHotmart" onclick="openIntegracaoModal()">Ativar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Integração Hotmart -->
+<div id="integracaoModal" class="integracao-modal">
+  <div class="integracao-content">
+    <div class="integracao-header">
+      <div class="integracao-logo">🔥</div>
+      <h3 style="margin: 0; font-size: 18px; color: #333;">Hotmart</h3>
+    </div>
+    <div class="integracao-body">
+      <div class="integracao-form">
+        <div class="form-help" style="margin-bottom: 16px;">
+          Caso tenha dúvidas ao realizar a integração, siga este <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773432368909--Hotmart-Como-habilitar-a-integra%C3%A7%C3%A3o-na-eNotas" target="_blank" rel="noopener">artigo</a>.
+          <br>
+          <button class="visualizar-btn" id="btnPreVisualizar" onclick="showPassosIntegracao()">Pré-visualizar</button>
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" placeholder="seu@email.com" />
+        </div>
+        <div class="form-group">
+          <label>Hottok</label>
+          <input type="text" placeholder="Cole aqui seu token" />
+        </div>
+      </div>
+    </div>
+    <div class="integracao-actions">
+      <button class="btn-cancelar" id="btnCancelarIntegracao" onclick="closeIntegracaoModal()">Cancelar</button>
+      <button class="btn-salvar" id="btnSalvarIntegracao" onclick="salvarIntegracao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chatbot flutuante -->
+<div class="chatbot-bubble" id="chatbotBubble" onclick="toggleChatbot()">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3 .97 4.29L2 22l5.71-.97C9 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.38 0-2.67-.3-3.83-.85l-.27-.13-2.82.48.48-2.82-.13-.27C4.3 14.67 4 13.38 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
+    <circle cx="9" cy="12" r="1"/>
+    <circle cx="12" cy="12" r="1"/>
+    <circle cx="15" cy="12" r="1"/>
+  </svg>
+</div>
+
+<div class="chatbot-window" id="chatbotWindow">
+  <div class="chatbot-header">
+    <h3>💬 Assistente eNotas</h3>
+    <button class="chatbot-close" onclick="toggleChatbot()">✕</button>
+  </div>
+  <div class="chatbot-messages" id="chatbotMessages">
+    <div class="chat-message bot">
+      <div class="message-bubble">
+        Olá! 👋 Sou o assistente virtual do eNotas. Como posso ajudar você hoje?
+      </div>
+    </div>
+  </div>
+  <div class="chatbot-input">
+    <input type="text" id="chatInput" placeholder="Digite sua mensagem..." onkeypress="handleChatKeyPress(event)">
+    <button onclick="sendChatMessage()">Enviar</button>
+  </div>
+</div>
+
+<div id="infoModal" aria-label="Popup de conteúdo" style="display:none;"></div>
+
+<script>
+// ============================================
+// FUNÇÕES DE NAVEGAÇÃO E MODAIS - NO ESCOPO GLOBAL
+// ============================================
+
+window.showVendas = function() {
+  const vendasPage = document.getElementById('vendasPage');
+  const appsPage = document.getElementById('appsPage');
+  
+  if (vendasPage) vendasPage.style.display = 'block';
+  if (appsPage) {
+    appsPage.classList.remove('active');
+    appsPage.style.display = 'none';
+  }
+  
+  document.querySelectorAll('.menu-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  const vendasMenuItem = document.querySelector('.menu-item');
+  if (vendasMenuItem) vendasMenuItem.classList.add('active');
+};
+
+window.showApps = function() {
+  const vendasPage = document.getElementById('vendasPage');
+  const appsPage = document.getElementById('appsPage');
+  
+  if (vendasPage) vendasPage.style.display = 'none';
+  if (appsPage) {
+    appsPage.classList.add('active');
+    appsPage.style.display = 'block';
+  }
+  
+  document.querySelectorAll('.menu-item').forEach(item => {
+    item.classList.remove('active');
+  });
+};
+
+window.openIntegracaoModal = function() {
+  const modal = document.getElementById('integracaoModal');
+  if (modal) {
+    modal.classList.add('open');
+    modal.style.display = 'flex';
+  }
+};
+
+window.closeIntegracaoModal = function() {
+  const modal = document.getElementById('integracaoModal');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.style.display = 'none';
+  }
+};
+
+window.salvarIntegracao = function() {
+  alert('Integração salva com sucesso! ✅');
+  window.closeIntegracaoModal();
+};
+
+window.showPassosIntegracao = function() {
+  const overlay = document.createElement('div');
+  overlay.className = 'inlinePopupBackdrop';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,.5)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '10001';
+
+  const content = document.createElement('div');
+  content.className = 'inlinePopupContent';
+  content.style.width = 'min(720px, 92%)';
+  content.style.maxHeight = '75vh';
+  content.style.overflow = 'auto';
+  content.style.background = '#fff';
+  content.style.borderRadius = '8px';
+  content.style.padding = '24px';
+  content.style.position = 'relative';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '12px';
+  closeBtn.style.right = '12px';
+  closeBtn.style.width = '28px';
+  closeBtn.style.height = '28px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#666';
+  closeBtn.style.fontSize = '18px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  const title = document.createElement('h3');
+  title.style.margin = '0 0 20px';
+  title.style.fontSize = '20px';
+  title.style.color = '#333';
+  title.textContent = 'Passo a Passo - Integração Hotmart';
+
+  const passos = document.createElement('div');
+  passos.style.fontSize = '14px';
+  passos.style.lineHeight = '1.8';
+  passos.style.color = '#555';
+  passos.innerHTML = `
+    <ol style="padding-left: 20px;">
+      <li><strong>Acesse sua conta Hotmart:</strong> Entre no painel da Hotmart com suas credenciais.</li>
+      <li><strong>Vá em Ferramentas:</strong> No menu lateral, clique em "Ferramentas".</li>
+      <li><strong>Acesse Webhook:</strong> Busque pela opção "Webhook" e clique nela.</li>
+      <li><strong>Copie o URL do Webhook:</strong> Você verá um campo com a URL do webhook.</li>
+      <li><strong>Cole no eNotas:</strong> Volte para o eNotas e cole a URL no campo indicado.</li>
+      <li><strong>Configure o Token:</strong> Na Hotmart, procure por "Token de acesso" ou "Hottok".</li>
+      <li><strong>Gere um novo token:</strong> Clique em "Gerar novo token" se necessário.</li>
+      <li><strong>Copie o token:</strong> Copie o código do token gerado.</li>
+      <li><strong>Cole no eNotas:</strong> Retorne ao eNotas e cole no campo "Hottok".</li>
+      <li><strong>Informe seu e-mail:</strong> Digite o e-mail cadastrado na Hotmart.</li>
+      <li><strong>Verifique os dados:</strong> Confira se todos os campos estão preenchidos corretamente.</li>
+      <li><strong>Salve a integração:</strong> Clique no botão "Salvar" no eNotas.</li>
+      <li><strong>Aguarde a confirmação:</strong> O sistema validará os dados inseridos.</li>
+      <li><strong>Teste a integração:</strong> Faça uma venda teste na Hotmart.</li>
+      <li><strong>Verifique no eNotas:</strong> Confira se a venda apareceu no painel de vendas.</li>
+      <li><strong>Configure produtos:</strong> Ajuste as configurações de produtos conforme necessário.</li>
+      <li><strong>Ative a emissão automática:</strong> Habilite a emissão automática de notas fiscais.</li>
+      <li><strong>Pronto!</strong> Sua integração está completa e funcionando.</li>
+    </ol>
+  `;
+
+  content.appendChild(closeBtn);
+  content.appendChild(title);
+  content.appendChild(passos);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+};
+
+// Aliases sem window. para compatibilidade
+const showVendas = window.showVendas;
+const showApps = window.showApps;
+const openIntegracaoModal = window.openIntegracaoModal;
+const closeIntegracaoModal = window.closeIntegracaoModal;
+const salvarIntegracao = window.salvarIntegracao;
+const showPassosIntegracao = window.showPassosIntegracao;
+</script>
+
+<script>
+const allVendas = [
+  {data:'07/10/2025', produto:'Curso de Gestão Empresarial', cliente:'Maria Oliveira', valor:'R$ 199,00', nota:'Erro', venda:'erro', canal:'Venda Manual'},
+  {data:'06/10/2025', produto:'Imersão Mestres da Audiência', cliente:'Leila Carvalho', valor:'R$ 42,90', nota:'Emitida', venda:'realizada', canal:'Venda Manual'},
+  {data:'06/10/2025', produto:'Imersão Mestres da Audiência', cliente:'Francisco Helton', valor:'R$ 42,90', nota:'Emitida', venda:'realizada', canal:'Venda Manual'},
+  {data:'06/10/2025', produto:'Mentoria Avançada', cliente:'Gisele Montalli', valor:'R$ 150,00', nota:'Pendente', venda:'em garantia', canal:'Venda Manual'},
+  {data:'05/10/2025', produto:'Workshop Digital', cliente:'Marcos Silva', valor:'R$ 99,90', nota:'Pendente', venda:'em garantia', canal:'Venda Manual'},
+  {data:'04/10/2025', produto:'Curso de Copywriting', cliente:'Ana Pereira', valor:'R$ 79,00', nota:'Emitida', venda:'realizada', canal:'Venda Manual'},
+  {data:'03/10/2025', produto:'Trilha de Sucesso', cliente:'Bruno Costa', valor:'R$ 59,00', nota:'Emitida', venda:'realizada', canal:'Venda Manual'},
+  {data:'02/10/2025', produto:'Mentoria Express', cliente:'João Mendes', valor:'R$ 120,00', nota:'Pendente', venda:'em garantia', canal:'Venda Manual'},
+  {data:'01/10/2025', produto:'Programa Premium', cliente:'Patrícia Lima', valor:'R$ 249,00', nota:'Emitida', venda:'realizada', canal:'Venda Manual'},
+  {data:'30/09/2025', produto:'Curso Avançado', cliente:'Ricardo Alves', valor:'R$ 89,00', nota:'Pendente', venda:'em garantia', canal:'Venda Manual'},
+  {data:'29/09/2025', produto:'Treinamento Pro', cliente:'Carla Nunes', valor:'R$ 129,00', nota:'Emitida', venda:'realizada', canal:'Venda Manual'},
+  {data:'28/09/2025', produto:'Curso de SEO', cliente:'Thiago Lima', valor:'R$ 110,00', nota:'Emitida', venda:'realizada', canal:'Venda Manual'},
+  {data:'27/09/2025', produto:'Webinar Avançado', cliente:'Lucas Ramos', valor:'R$ 55,00', nota:'Pendente', venda:'em garantia', canal:'Venda Manual'}
+];
+
+let paginaAtual = 1;
+let linhasPorPagina = 4;
+
+let filtros = {
+  dataInicio: '',
+  dataFim: '',
+  cliente: '',
+  produto: '',
+  canal: '',
+  status: ''
+};
+
+function normalizeDate(d) {
+  if (!d) return '';
+  const dt = new Date(d);
+  if (isNaN(dt)) return '';
+  return dt.toISOString().split('T')[0];
+}
+
+function aplicarFiltros(lista) {
+  const v = lista || allVendas;
+  const sIni = filtros.dataInicio ? new Date(filtros.dataInicio) : null;
+  const sFim = filtros.dataFim ? new Date(filtros.dataFim) : null;
+  return v.filter(x => {
+    if (sIni || sFim) {
+      const dt = new Date(x.data);
+      if (sIni && dt < sIni) return false;
+      if (sFim && dt > sFim) return false;
+    }
+    if (filtros.cliente && !x.cliente.toLowerCase().includes(filtros.cliente.toLowerCase())) return false;
+    if (filtros.produto && !x.produto.toLowerCase().includes(filtros.produto.toLowerCase())) return false;
+    if (filtros.canal && x.canal !== filtros.canal) return false;
+    if (filtros.status && x.nota !== filtros.status) return false;
+    return true;
+  });
+}
+
+function renderTabela() {
+  const tabela = document.getElementById("tabelaVendas");
+  tabela.innerHTML = "";
+
+  const dadosFiltrados = aplicarFiltros(allVendas);
+  const total = dadosFiltrados.length;
+  const maxPag = Math.max(1, Math.ceil(total / linhasPorPagina));
+  if (paginaAtual > maxPag) paginaAtual = maxPag;
+
+  const inicio = (paginaAtual - 1) * linhasPorPagina;
+  const fim = inicio + linhasPorPagina;
+  const paginadas = dadosFiltrados.slice(inicio, fim);
+
+  paginadas.forEach((v, idx) => {
+    const tr = document.createElement("tr");
+    const globalIndex = inicio + idx;
+
+    const checkbox = `<td class="checkboxCol" style="text-align:center;">
+      <input type="checkbox" class="rowSel" data-id="${globalIndex}">
+    </td>`;
+
+    let notaHTML = "";
+    if (v.nota === "Emitida") {
+      notaHTML = `<span class='badge emitida'>
+        <span class="tooltip" aria-label="Emitida">
+          🖨️
+          <span class="tooltiptext">emitida</span>
+        </span>
+      </span>`;
+    } else if (v.nota === "Erro") {
+      notaHTML = `<span class='badge erro'>
+        <span class="tooltip" aria-label="Erro">
+          ❗
+          <span class="tooltiptext">emissão negada</span>
+        </span>
+      </span>`;
+    } else {
+      notaHTML = `<span class='badge pendente'>
+        <span class="tooltip" aria-label="Pendente">
+          ⏳
+          <span class="tooltiptext">pendente</span>
+        </span>
+      </span>`;
+    }
+
+    const acoesHTML = v.nota === 'Emitida' 
+      ? `<button class='btn-acao' onclick='openNotaModal()'>Visualizar</button>`
+      : v.nota === 'Erro'
+      ? `<button class='btn-acao' onclick='showErroMessage()'>Visualizar</button>`
+      : `<button class='btn-acao' onclick='showPendenteMessage()'>Visualizar</button>`;
+
+    tr.innerHTML = `
+      ${checkbox}
+      <td>${v.data}</td>
+      <td>${v.produto}</td>
+      <td>${v.cliente}</td>
+      <td>${v.valor}</td>
+      <td>${notaHTML}</td>
+      <td>${v.canal}</td>
+      <td>${acoesHTML}</td>
+    `;
+    tabela.appendChild(tr);
+  });
+
+  const paginaInfo = document.getElementById("paginaInfo");
+  if (paginaInfo) paginaInfo.textContent = `Página ${paginaAtual} de ${maxPag}`;
+
+  const paginaSel = document.getElementById("paginaSelector");
+  if (paginaSel) {
+    paginaSel.innerHTML = "";
+    for (let i = 1; i <= maxPag; i++) {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.text = String(i);
+      if (i === paginaAtual) opt.selected = true;
+      paginaSel.appendChild(opt);
+    }
+  }
+
+  const btnAnterior = document.getElementById("btnAnterior");
+  const btnProximo = document.getElementById("btnProximo");
+  if (btnAnterior) btnAnterior.disabled = (paginaAtual <= 1);
+  if (btnProximo) btnProximo.disabled = (paginaAtual >= maxPag);
+}
+
+function anterior() {
+  const maxPag = Math.max(1, Math.ceil(aplicarFiltros(allVendas).length / linhasPorPagina));
+  if (paginaAtual > 1) {
+    paginaAtual--;
+    function showPassosIntegracao() {
+  const overlay = document.createElement('div');
+  overlay.className = 'inlinePopupBackdrop';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,.5)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '10001';
+
+  const content = document.createElement('div');
+  content.className = 'inlinePopupContent';
+  content.style.width = 'min(720px, 92%)';
+  content.style.maxHeight = '75vh';
+  content.style.overflow = 'auto';
+  content.style.background = '#fff';
+  content.style.borderRadius = '8px';
+  content.style.padding = '24px';
+  content.style.position = 'relative';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '12px';
+  closeBtn.style.right = '12px';
+  closeBtn.style.width = '28px';
+  closeBtn.style.height = '28px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#666';
+  closeBtn.style.fontSize = '18px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  const title = document.createElement('h3');
+  title.style.margin = '0 0 20px';
+  title.style.fontSize = '20px';
+  title.style.color = '#333';
+  title.textContent = 'Passo a Passo - Integração Hotmart';
+
+  const passos = document.createElement('div');
+  passos.style.fontSize = '14px';
+  passos.style.lineHeight = '1.8';
+  passos.style.color = '#555';
+  passos.innerHTML = `
+    <ol style="padding-left: 20px;">
+      <li><strong>Acesse sua conta Hotmart:</strong> Entre no painel da Hotmart com suas credenciais.</li>
+      <li><strong>Vá em Ferramentas:</strong> No menu lateral, clique em "Ferramentas".</li>
+      <li><strong>Acesse Webhook:</strong> Busque pela opção "Webhook" e clique nela.</li>
+      <li><strong>Copie o URL do Webhook:</strong> Você verá um campo com a URL do webhook.</li>
+      <li><strong>Cole no eNotas:</strong> Volte para o eNotas e cole a URL no campo indicado.</li>
+      <li><strong>Configure o Token:</strong> Na Hotmart, procure por "Token de acesso" ou "Hottok".</li>
+      <li><strong>Gere um novo token:</strong> Clique em "Gerar novo token" se necessário.</li>
+      <li><strong>Copie o token:</strong> Copie o código do token gerado.</li>
+      <li><strong>Cole no eNotas:</strong> Retorne ao eNotas e cole no campo "Hottok".</li>
+      <li><strong>Informe seu e-mail:</strong> Digite o e-mail cadastrado na Hotmart.</li>
+      <li><strong>Verifique os dados:</strong> Confira se todos os campos estão preenchidos corretamente.</li>
+      <li><strong>Salve a integração:</strong> Clique no botão "Salvar" no eNotas.</li>
+      <li><strong>Aguarde a confirmação:</strong> O sistema validará os dados inseridos.</li>
+      <li><strong>Teste a integração:</strong> Faça uma venda teste na Hotmart.</li>
+      <li><strong>Verifique no eNotas:</strong> Confira se a venda apareceu no painel de vendas.</li>
+      <li><strong>Configure produtos:</strong> Ajuste as configurações de produtos conforme necessário.</li>
+      <li><strong>Ative a emissão automática:</strong> Habilite a emissão automática de notas fiscais.</li>
+      <li><strong>Pronto!</strong> Sua integração está completa e funcionando.</li>
+    </ol>
+  `;
+
+  content.appendChild(closeBtn);
+  content.appendChild(title);
+  content.appendChild(passos);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+function showVendas() {
+  const vendasPage = document.getElementById('vendasPage');
+  const appsPage = document.getElementById('appsPage');
+  
+  if (vendasPage) vendasPage.style.display = 'block';
+  if (appsPage) appsPage.classList.remove('active');
+  
+  document.querySelectorAll('.menu-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  const vendasMenuItem = document.querySelector('.menu-item');
+  if (vendasMenuItem) vendasMenuItem.classList.add('active');
+}
+
+function showApps() {
+  const vendasPage = document.getElementById('vendasPage');
+  const appsPage = document.getElementById('appsPage');
+  
+  console.log('showApps chamado');
+  console.log('vendasPage:', vendasPage);
+  console.log('appsPage:', appsPage);
+  
+  if (vendasPage) {
+    vendasPage.style.display = 'none';
+    console.log('vendasPage escondido');
+  }
+  if (appsPage) {
+    appsPage.classList.add('active');
+    appsPage.style.display = 'block';
+    console.log('appsPage mostrado');
+  }
+  
+  document.querySelectorAll('.menu-item').forEach(item => {
+    item.classList.remove('active');
+  });
+}
+
+function showSubmenu(event) {
+  // Submenu já aparece via CSS :hover
+}
+
+function hideSubmenu(event) {
+  // Submenu já desaparece via CSS
+}
+
+function openIntegracaoModal() {
+  const modal = document.getElementById('integracaoModal');
+  console.log('openIntegracaoModal chamado');
+  console.log('modal:', modal);
+  if (modal) {
+    modal.classList.add('open');
+    modal.style.display = 'flex';
+    console.log('Modal aberto');
+  }
+}
+
+function closeIntegracaoModal() {
+  const modal = document.getElementById('integracaoModal');
+  if (modal) {
+    modal.classList.remove('open');
+    modal.style.display = 'none';
+  }
+}
+
+function salvarIntegracao() {
+  alert('Integração salva com sucesso! ✅');
+  closeIntegracaoModal();
+}
+
+renderTabela();
+updateXVisibility();
+
+  }
+}
+
+function proxima() {
+  const maxPag = Math.max(1, Math.ceil(aplicarFiltros(allVendas).length / linhasPorPagina));
+  if (paginaAtual < maxPag) {
+    paginaAtual++;
+    renderTabela();
+  }
+}
+
+function goToPage(p) {
+  const page = parseInt(p, 10);
+  const maxPag = Math.max(1, Math.ceil(aplicarFiltros(allVendas).length / linhasPorPagina));
+  if (page >= 1 && page <= maxPag) {
+    paginaAtual = page;
+    renderTabela();
+  }
+}
+
+function toggleAcoesDropdown() {
+  const dd = document.getElementById("acoesDropdown");
+  dd.style.display = dd.style.display === "block" ? "none" : "block";
+}
+function handleAcoes(action) {
+  alert("Ação em massa: " + action);
+  document.getElementById("acoesDropdown").style.display = "none";
+}
+
+function toggleFiltroPanel() {
+  const panel = document.getElementById("filtrosPanel");
+  panel.style.display = panel.style.display === "block" ? "none" : "block";
+}
+function applyFiltersFromUI() {
+  filtros.dataInicio = document.getElementById("fDataInicio").value;
+  filtros.dataFim = document.getElementById("fDataFim").value;
+  filtros.cliente = document.getElementById("fCliente").value;
+  filtros.produto = document.getElementById("fProduto").value;
+  filtros.canal = document.getElementById("fCanal").value;
+  filtros.status = document.getElementById("fStatus").value;
+  paginaAtual = 1;
+  renderTabela();
+  toggleFiltroPanel();
+}
+function clearFilters() {
+  document.getElementById("fDataInicio").value = "";
+  document.getElementById("fDataFim").value = "";
+  document.getElementById("fCliente").value = "";
+  document.getElementById("fProduto").value = "";
+  document.getElementById("fCanal").value = "";
+  document.getElementById("fStatus").value = "";
+  filtros = { dataInicio:'', dataFim:'', cliente:'', produto:'', canal:'', status:'' };
+  paginaAtual = 1;
+  renderTabela();
+}
+function refreshFiltersOnInput() {
+  applyFiltersFromUI();
+}
+
+document.addEventListener('click', (e) => {
+  const acoesBox = document.querySelector('.acoes');
+  const targetInsideAcoes = acoesBox.contains(e.target);
+  const filtrosPanel = document.getElementById('filtrosPanel');
+  if (!targetInsideAcoes && filtrosPanel && !filtrosPanel.contains(e.target)) {
+    filtrosPanel.style.display = 'none';
+  }
+});
+
+function openCertModal(event) {
+  if (event) event.preventDefault();
+  document.getElementById('certModal').classList.add('modalVisible');
+  document.getElementById('certModal').style.display = 'flex';
+}
+function closeCertModal() {
+  document.getElementById('certModal').classList.remove('modalVisible');
+  document.getElementById('certModal').style.display = 'none';
+}
+function concluirCertModal() {
+  closeCertModal();
+}
+
+function openProductInfoPopup() {
+  const overlay = document.createElement('div');
+  overlay.className = 'inlinePopupBackdrop';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,.45)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '9999';
+
+  const content = document.createElement('div');
+  content.className = 'inlinePopupContent';
+  content.style.width = 'min(720px, 92%)';
+  content.style.maxHeight = '60vh';
+  content.style.overflow = 'auto';
+  content.style.background = '#fff';
+  content.style.borderRadius = '6px';
+  content.style.padding = '20px';
+  content.style.position = 'relative';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'inlinePopupClose';
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '6px';
+  closeBtn.style.right = '8px';
+  closeBtn.style.width = '20px';
+  closeBtn.style.height = '20px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#333';
+  closeBtn.style.fontSize = '12px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.opacity = '0.25';
+  closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '0.85');
+  closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.25');
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  const p = document.createElement('p');
+  p.style.margin = '0';
+  p.style.fontSize = '14px';
+  p.style.lineHeight = '1.5';
+  p.style.color = '#333';
+  p.innerHTML = `Com a nova funcionalidade do eNotas, você pode configurar o tipo de nota fiscal padrão para seus produtos físicos vendidos na Hotmart. Isso significa que ao cadastrar novos produtos físicos na plataforma, eles já virão automaticamente com o tipo de nota fiscal correto (NFe - Nota Fiscal Eletrônica). Essa configuração facilita o processo de emissão de notas para produtos físicos, garantindo que você esteja em conformidade fiscal desde o início. A integração entre Hotmart e eNotas permite que todo o processo seja automatizado, desde a venda até a emissão e envio da nota fiscal para o cliente. Para maiores informações, veja o <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/39949977411085--Produto-F%C3%ADsico-Como-configurar-o-tipo-de-nota-padr%C3%A3o-para-novos-produtos-f%C3%ADsicos-na-eNotas" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">artigo</a>.`;
+
+  content.appendChild(closeBtn);
+  content.appendChild(p);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+function openInlineMessage(message, link) {
+  const overlay = document.createElement('div');
+  overlay.className = 'inlinePopupBackdrop';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,.45)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '9999';
+
+  const content = document.createElement('div');
+  content.className = 'inlinePopupContent';
+  content.style.width = 'min(720px, 92%)';
+  content.style.maxHeight = '60vh';
+  content.style.overflow = 'auto';
+  content.style.background = '#fff';
+  content.style.borderRadius = '6px';
+  content.style.padding = '16px';
+  content.style.position = 'relative';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'inlinePopupClose';
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '6px';
+  closeBtn.style.right = '8px';
+  closeBtn.style.width = '20px';
+  closeBtn.style.height = '20px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#333';
+  closeBtn.style.fontSize = '12px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.opacity = '0.25';
+  closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '0.85');
+  closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.25');
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  const p = document.createElement('p');
+  p.style.margin = '0';
+  p.style.fontSize = '14px';
+  p.style.lineHeight = '1.5';
+  p.style.color = '#333';
+  
+  if (link) {
+    const messageWithLink = message.replace(
+      'clique aqui',
+      `<a href="${link}" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">clique aqui</a>`
+    );
+    p.innerHTML = messageWithLink;
+  } else {
+    p.innerHTML = message;
+  }
+
+  content.appendChild(closeBtn);
+  content.appendChild(p);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+function openInlineContent(url) {
+  let container = document.getElementById('infoModal');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'infoModal';
+    document.body.appendChild(container);
+  }
+
+  container.innerHTML = `
+    <div class="infoModalBackdrop" onclick="closeInfoModal()" style="position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; z-index:999;">
+      <div class="infoModalContent" onclick="event.stopPropagation()" style="width: min(800px, 90%); background:#fff; border-radius:6px; padding:12px; position:relative;">
+        <button class="infoModalClose" onclick="closeInfoModal()" aria-label="Fechar" style="position:absolute; top:6px; right:6px; border:none; background:#f1f1f1; border-radius:4px; padding:6px 8px; cursor:pointer;">✖</button>
+        <iframe class="infoModalFrame" src="${url}" frameborder="0" title="Conteúdo" style="width:100%; height:420px;"></iframe>
+      </div>
+    </div>
+  `;
+  container.style.display = 'block';
+}
+function closeInfoModal() {
+  const container = document.getElementById('infoModal');
+  if (container) container.style.display = 'none';
+  if (container) container.innerHTML = '';
+}
+
+function expandirBanner(id) {
+  const banner = document.getElementById(id);
+  if (!banner) return;
+  const already = banner.classList.contains('expandido');
+
+  document.querySelectorAll('.banner.expandido').forEach(b => {
+    if (b.id !== id) b.classList.remove('expandido');
+  });
+
+  if (!already) {
+    banner.classList.add('expandido');
+  } else {
+    banner.classList.remove('expandido');
+  }
+
+  updateXVisibility();
+}
+
+function fecharBanner(id) {
+  const banner = document.getElementById(id);
+  if (!banner) return;
+  banner.classList.remove('expandido');
+  updateXVisibility();
+}
+
+function updateXVisibility() {
+  document.querySelectorAll('.banner').forEach(b => {
+    const btn = b.querySelector('.fechar-internal');
+    if (!btn) return;
+    if (b.classList.contains('expandido')) {
+      btn.style.display = 'inline-flex';
+    } else {
+      btn.style.display = 'none';
+    }
+  });
+}
+
+function openNotasNaoEmitidasPopup() {
+  const overlay = document.createElement('div');
+  overlay.className = 'inlinePopupBackdrop';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,.45)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '9999';
+
+  const content = document.createElement('div');
+  content.className = 'inlinePopupContent';
+  content.style.width = 'min(900px, 92%)';
+  content.style.maxHeight = '70vh';
+  content.style.overflow = 'auto';
+  content.style.background = '#fff';
+  content.style.borderRadius = '6px';
+  content.style.padding = '20px';
+  content.style.position = 'relative';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'inlinePopupClose';
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '6px';
+  closeBtn.style.right = '8px';
+  closeBtn.style.width = '20px';
+  closeBtn.style.height = '20px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#333';
+  closeBtn.style.fontSize = '12px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.opacity = '0.25';
+  closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '0.85');
+  closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.25');
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  const title = document.createElement('h3');
+  title.style.margin = '0 0 16px';
+  title.style.fontSize = '18px';
+  title.style.color = '#333';
+  title.textContent = 'Notas Fiscais Não Emitidas';
+
+  const alertMsg = document.createElement('p');
+  alertMsg.style.margin = '0 0 12px';
+  alertMsg.style.padding = '12px';
+  alertMsg.style.background = '#fff3cd';
+  alertMsg.style.border = '1px solid #ffc107';
+  alertMsg.style.borderRadius = '6px';
+  alertMsg.style.fontSize = '14px';
+  alertMsg.style.color = '#856404';
+  alertMsg.innerHTML = '<strong>⚠️ Atenção:</strong> Você possui 20 notas fiscais pendentes de emissão.';
+
+  const table = document.createElement('table');
+  table.className = 'notas-table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Produto</th>
+        <th>Cliente</th>
+        <th>Valor total</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>24/09/2025</td>
+        <td>Imersão Mestres da Audiência...</td>
+        <td>Felipe Poppe</td>
+        <td>R$ 39,90</td>
+        <td><button class="btn-corrigir" onclick="openCorrigirPopup()">Corrigir</button></td>
+      </tr>
+      <tr>
+        <td>23/09/2025</td>
+        <td>Curso de Marketing Digital</td>
+        <td>Ana Silva</td>
+        <td>R$ 149,00</td>
+        <td><button class="btn-corrigir" onclick="openCorrigirPopup()">Corrigir</button></td>
+      </tr>
+      <tr>
+        <td>22/09/2025</td>
+        <td>Mentoria Premium</td>
+        <td>Carlos Santos</td>
+        <td>R$ 299,00</td>
+        <td><button class="btn-corrigir" onclick="openCorrigirPopup()">Corrigir</button></td>
+      </tr>
+      <tr>
+        <td>21/09/2025</td>
+        <td>Workshop de Vendas</td>
+        <td>Mariana Costa</td>
+        <td>R$ 89,90</td>
+        <td><button class="btn-corrigir" onclick="openCorrigirPopup()">Corrigir</button></td>
+      </tr>
+      <tr>
+        <td>20/09/2025</td>
+        <td>Treinamento Avançado</td>
+        <td>Roberto Lima</td>
+        <td>R$ 199,00</td>
+        <td><button class="btn-corrigir" onclick="openCorrigirPopup()">Corrigir</button></td>
+      </tr>
+    </tbody>
+  `;
+
+  const note = document.createElement('p');
+  note.style.margin = '12px 0 0';
+  note.style.fontSize = '12px';
+  note.style.color = '#666';
+  note.textContent = 'Exibindo 5 de 20 registros';
+
+  content.appendChild(closeBtn);
+  content.appendChild(title);
+  content.appendChild(alertMsg);
+  content.appendChild(table);
+  content.appendChild(note);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+function openCorrigirPopup() {
+  const overlay = document.createElement('div');
+  overlay.className = 'inlinePopupBackdrop';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,.45)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '10000';
+
+  const content = document.createElement('div');
+  content.className = 'inlinePopupContent';
+  content.style.width = 'min(720px, 92%)';
+  content.style.maxHeight = '70vh';
+  content.style.overflow = 'auto';
+  content.style.background = '#fff';
+  content.style.borderRadius = '6px';
+  content.style.padding = '20px';
+  content.style.position = 'relative';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'inlinePopupClose';
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '6px';
+  closeBtn.style.right = '8px';
+  closeBtn.style.width = '20px';
+  closeBtn.style.height = '20px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#333';
+  closeBtn.style.fontSize = '12px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.opacity = '0.25';
+  closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '0.85');
+  closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.25');
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  const title = document.createElement('h3');
+  title.style.margin = '0 0 16px';
+  title.style.fontSize = '18px';
+  title.style.color = '#333';
+  title.textContent = 'Como Corrigir Rejeição de NFS-e';
+
+  const p = document.createElement('p');
+  p.style.margin = '0';
+  p.style.fontSize = '14px';
+  p.style.lineHeight = '1.6';
+  p.style.color = '#333';
+  p.innerHTML = `
+    <strong>Erro E160 - Arquivo em desacordo com o XML Schema</strong><br><br>
+    Este erro ocorre quando há inconsistências no formato dos dados enviados para a prefeitura. As causas mais comuns incluem:<br><br>
+    • Campos obrigatórios não preenchidos<br>
+    • Formatação incorreta de CPF/CNPJ<br>
+    • Descrição do serviço incompleta<br>
+    • Código de serviço inválido<br><br>
+    Para resolver este problema, verifique todos os dados da nota fiscal e certifique-se de que estão preenchidos corretamente conforme as especificações da prefeitura.<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35774090022797-Rejei%C3%A7%C3%A3o-ao-emitir-NFS-e-C%C3%B3digo-E160-Descri%C3%A7%C3%A3o-Arquivo-em-desacordo-com-o-XML-Schema" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">Clique aqui para ver o guia completo de correção</a>
+  `;
+
+  content.appendChild(closeBtn);
+  content.appendChild(title);
+  content.appendChild(p);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+function toggleChatbot() {
+  const chatWindow = document.getElementById('chatbotWindow');
+  chatWindow.classList.toggle('open');
+  if (chatWindow.classList.contains('open')) {
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+  
+  if (message === '') return;
+  
+  const messagesDiv = document.getElementById('chatbotMessages');
+  
+  const userMessage = document.createElement('div');
+  userMessage.className = 'chat-message user';
+  userMessage.innerHTML = `<div class="message-bubble">${message}</div>`;
+  messagesDiv.appendChild(userMessage);
+  
+  input.value = '';
+  
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  
+  setTimeout(() => {
+    const botMessage = document.createElement('div');
+    botMessage.className = 'chat-message bot';
+    
+    let response = 'Obrigado pela sua mensagem! Como posso ajudar você?';
+    
+    const lowerMessage = message.toLowerCase();
+    if (lowerMessage.includes('nota') || lowerMessage.includes('emitir')) {
+      response = 'Para emitir notas fiscais, você pode acessar a seção de vendas e clicar em "Gerar nota fiscal". Precisa de ajuda com algo específico?';
+    } else if (lowerMessage.includes('certificado')) {
+      response = 'Seu certificado digital está próximo do vencimento. Você pode atualizá-lo clicando no aviso no banner verde acima. Posso ajudar com mais alguma coisa?';
+    } else if (lowerMessage.includes('pendente')) {
+      response = 'Você possui 20 notas fiscais pendentes. Clique no link no banner verde para ver os detalhes e corrigir as pendências.';
+    } else if (lowerMessage.includes('ajuda') || lowerMessage.includes('suporte')) {
+      response = 'Estou aqui para ajudar! Você pode me perguntar sobre emissão de notas, certificados digitais, vendas ou qualquer dúvida sobre o eNotas. 😊';
+    }
+    
+    botMessage.innerHTML = `<div class="message-bubble">${response}</div>`;
+    messagesDiv.appendChild(botMessage);
+    
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }, 800);
+}
+
+function handleChatKeyPress(event) {
+  if (event.key === 'Enter') {
+    sendChatMessage();
+  }
+}
+
+function openNotaModal() {
+  document.getElementById('notaModal').classList.add('open');
+}
+
+function closeNotaModal() {
+  document.getElementById('notaModal').classList.remove('open');
+}
+
+function downloadNota() {
+  const notaContent = `NFS-e - NOTA FISCAL DE SERVIÇOS ELETRÔNICA - RPS 2142
+Série 1, emitido em: 03/10/2025
+
+═══════════════════════════════════════════════════════════════════════
+DADOS DO PRESTADOR
+═══════════════════════════════════════════════════════════════════════
+
+LBR MENTORIA E TREINAMENTOS LTDA
+RUA MANOEL EUFRÁSIO, 403 APT 171 ANDAR 16 COND RENAISSANCE ED
+JUVEVÊ - Curitiba - PR - 80030440
+TELEFONE: 4192284899
+EMAIL: lilliana.bortolini@gmail.com
+CNPJ: 58.680.587/0001-07
+INSCRIÇÃO MUNICIPAL: 12107664
+
+═══════════════════════════════════════════════════════════════════════
+INFORMAÇÕES DA NOTA
+═══════════════════════════════════════════════════════════════════════
+
+NÚMERO DA NOTA: 2194
+COMPETÊNCIA: 10/2025
+CÓDIGO DE VERIFICAÇÃO: O4UUCA06
+DATA DE EMISSÃO: 03/10/2025 10:32:35
+
+═══════════════════════════════════════════════════════════════════════
+DADOS DO TOMADOR
+═══════════════════════════════════════════════════════════════════════
+
+NOME / RAZÃO SOCIAL: Cliente Completo
+CPF / CNPJ: 111.444.777-35
+E-MAIL: teste@teste.com.br
+ENDEREÇO: Avenida Assis Chateaubriand, 499
+BAIRRO: Floresta
+CEP: 30150101
+MUNICÍPIO: Belo Horizonte
+UF: MG
+
+═══════════════════════════════════════════════════════════════════════
+DISCRIMINAÇÃO DOS SERVIÇOS
+═══════════════════════════════════════════════════════════════════════
+
+Serviço de Teste
+
+CÓDIGO DO SERVIÇO: 802 - Treinamento em desenvolvimento profissional e gerencial
+MUNICÍPIO ONDE O SERVIÇO FOI PRESTADO: 4106902 / Curitiba
+NATUREZA DA OPERAÇÃO: Tributação no município
+REGIME ESPECIAL DE TRIBUTAÇÃO: Microempresa Municipal
+
+═══════════════════════════════════════════════════════════════════════
+VALORES
+═══════════════════════════════════════════════════════════════════════
+
+VALOR DOS SERVIÇOS: R$ 1,00
+(-) DESCONTOS: R$ 0,00
+(-) DEDUÇÕES: R$ 0,00
+(-) RETENÇÕES FEDERAIS: R$ 0,00
+(=) BASE DE CÁLCULO: R$ 1,00
+(-) ISS RETIDO NA FONTE: R$ 0,00
+(x) ALÍQUOTA: 4,00 %
+(=) VALOR DO ISS: R$ 0,04
+
+VALOR LÍQUIDO: R$ 1,00
+
+═══════════════════════════════════════════════════════════════════════
+RETENÇÕES FEDERAIS
+═══════════════════════════════════════════════════════════════════════
+
+PIS: R$ 0,00
+COFINS: R$ 0,00
+IR: R$ 0,00
+CSLL: R$ 0,00
+INSS: R$ 0,00
+
+═══════════════════════════════════════════════════════════════════════
+OUTRAS INFORMAÇÕES
+═══════════════════════════════════════════════════════════════════════
+
+Documento emitido por ME ou EPP optante pelo simples nacional;
+
+powered by eNotas Gateway`;
+
+  const blob = new Blob([notaContent], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Nota_Fiscal_2194.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function showPendenteMessage() {
+  const overlay = document.createElement('div');
+  overlay.className = 'inlinePopupBackdrop';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,.45)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '10000';
+
+  const content = document.createElement('div');
+  content.className = 'inlinePopupContent';
+  content.style.width = 'min(450px, 92%)';
+  content.style.background = '#fff';
+  content.style.borderRadius = '8px';
+  content.style.padding = '24px';
+  content.style.position = 'relative';
+  content.style.textAlign = 'center';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'inlinePopupClose';
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '8px';
+  closeBtn.style.right = '8px';
+  closeBtn.style.width = '24px';
+  closeBtn.style.height = '24px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#333';
+  closeBtn.style.fontSize = '14px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.opacity = '0.4';
+  closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '1');
+  closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.4');
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  const icon = document.createElement('div');
+  icon.style.fontSize = '48px';
+  icon.style.marginBottom = '16px';
+  icon.textContent = '⏳';
+
+  const message = document.createElement('p');
+  message.style.margin = '0';
+  message.style.fontSize = '16px';
+  message.style.lineHeight = '1.5';
+  message.style.color = '#333';
+  message.textContent = 'A nota será emitida após o vencimento da garantia';
+
+  content.appendChild(closeBtn);
+  content.appendChild(icon);
+  content.appendChild(message);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+function showErroMessage() {
+  const overlay = document.createElement('div');
+  overlay.className = 'inlinePopupBackdrop';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,.45)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '10000';
+
+  const content = document.createElement('div');
+  content.className = 'inlinePopupContent';
+  content.style.width = 'min(520px, 92%)';
+  content.style.background = '#fff';
+  content.style.borderRadius = '8px';
+  content.style.padding = '24px';
+  content.style.position = 'relative';
+  content.style.textAlign = 'center';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'inlinePopupClose';
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '8px';
+  closeBtn.style.right = '8px';
+  closeBtn.style.width = '24px';
+  closeBtn.style.height = '24px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#333';
+  closeBtn.style.fontSize = '14px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.opacity = '0.4';
+  closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '1');
+  closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.4');
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  const icon = document.createElement('div');
+  icon.style.fontSize = '48px';
+  icon.style.marginBottom = '16px';
+  icon.textContent = '❗';
+
+  const title = document.createElement('h3');
+  title.style.margin = '0 0 12px';
+  title.style.fontSize = '18px';
+  title.style.color = '#c62828';
+  title.textContent = 'Erro na Emissão da Nota Fiscal';
+
+  const message = document.createElement('p');
+  message.style.margin = '0';
+  message.style.fontSize = '15px';
+  message.style.lineHeight = '1.6';
+  message.style.color = '#333';
+  message.style.textAlign = 'left';
+  message.innerHTML = `<strong>Ocorreu um erro inesperado.</strong><br><br>
+    <strong>Correção:</strong> As possíveis causas são formatações XML incorretas.<br><br>
+    Para mais detalhes sobre como corrigir este erro, 
+    <a href="#" onclick="event.preventDefault(); openErroDetalhesPopup();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">clique aqui</a>.`;
+
+  content.appendChild(closeBtn);
+  content.appendChild(icon);
+  content.appendChild(title);
+  content.appendChild(message);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+function openErroDetalhesPopup() {
+  const overlay = document.createElement('div');
+  overlay.className = 'inlinePopupBackdrop';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,.5)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '10001';
+
+  const content = document.createElement('div');
+  content.className = 'inlinePopupContent';
+  content.style.width = 'min(720px, 92%)';
+  content.style.maxHeight = '70vh';
+  content.style.overflow = 'auto';
+  content.style.background = '#fff';
+  content.style.borderRadius = '6px';
+  content.style.padding = '20px';
+  content.style.position = 'relative';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'inlinePopupClose';
+  closeBtn.textContent = '✖';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '8px';
+  closeBtn.style.right = '8px';
+  closeBtn.style.width = '24px';
+  closeBtn.style.height = '24px';
+  closeBtn.style.border = 'none';
+  closeBtn.style.background = 'transparent';
+  closeBtn.style.color = '#333';
+  closeBtn.style.fontSize = '14px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.opacity = '0.4';
+  closeBtn.addEventListener('mouseenter', () => closeBtn.style.opacity = '1');
+  closeBtn.addEventListener('mouseleave', () => closeBtn.style.opacity = '0.4');
+  closeBtn.addEventListener('click', () => document.body.removeChild(overlay));
+
+  const title = document.createElement('h3');
+  title.style.margin = '0 0 16px';
+  title.style.fontSize = '18px';
+  title.style.color = '#333';
+  title.textContent = 'Rejeição ao emitir NFS-e - Código E160';
+
+  const p = document.createElement('p');
+  p.style.margin = '0';
+  p.style.fontSize = '14px';
+  p.style.lineHeight = '1.6';
+  p.style.color = '#333';
+  p.innerHTML = `
+    <strong>Descrição: Arquivo em desacordo com o XML Schema</strong><br><br>
+    
+    Este erro ocorre quando há inconsistências no formato dos dados enviados para a prefeitura. As causas mais comuns incluem:<br><br>
+    
+    • <strong>Campos obrigatórios não preenchidos:</strong> Verifique se todos os campos necessários estão completos.<br>
+    • <strong>Formatação incorreta de CPF/CNPJ:</strong> Certifique-se de que documentos estão no formato correto (apenas números).<br>
+    • <strong>Descrição do serviço incompleta:</strong> A descrição deve ser clara e detalhada.<br>
+    • <strong>Código de serviço inválido:</strong> Confirme se o código de serviço está correto para sua atividade.<br>
+    • <strong>Dados XML malformados:</strong> Caracteres especiais podem causar problemas na estrutura XML.<br><br>
+    
+    <strong>Como resolver:</strong><br>
+    1. Revise todos os dados da nota fiscal<br>
+    2. Corrija os campos com problemas<br>
+    3. Tente emitir a nota novamente<br><br>
+    
+    Se o problema persistir, entre em contato com o suporte técnico.<br><br>
+    
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35774090022797-Rejei%C3%A7%C3%A3o-ao-emitir-NFS-e-C%C3%B3digo-E160-Descri%C3%A7%C3%A3o-Arquivo-em-desacordo-com-o-XML-Schema" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">Ver artigo completo no Centro de Ajuda →</a>
+  `;
+
+  content.appendChild(closeBtn);
+  content.appendChild(title);
+  content.appendChild(p);
+  overlay.appendChild(content);
+  document.body.appendChild(overlay);
+}
+
+renderTabela();
+updateXVisibility();
+</script>
+
+</body>
+</html>

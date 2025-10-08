@@ -1,0 +1,531 @@
+// Estado do chatbot
+let chatState = 'initial';
+let awaitingCustomPlatform = false;
+
+// Função principal de envio de mensagens
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const message = input.value.trim();
+  
+  if (message === '') return;
+  
+  const messagesDiv = document.getElementById('chatbotMessages');
+  
+  // Adiciona mensagem do usuário
+  const userMessage = document.createElement('div');
+  userMessage.className = 'chat-message user';
+  userMessage.innerHTML = `<div class="message-bubble">${message}</div>`;
+  messagesDiv.appendChild(userMessage);
+  
+  input.value = '';
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  
+  // Se está esperando resposta de plataforma customizada
+  if (awaitingCustomPlatform) {
+    setTimeout(() => {
+      const botMessage = document.createElement('div');
+      botMessage.className = 'chat-message bot';
+      botMessage.innerHTML = `<div class="message-bubble">Obrigado! Registramos sua plataforma: <strong>${message}</strong>. Nossa equipe de suporte entrará em contato para auxiliar na integração. 😊<br><br>Precisa de mais alguma ajuda?</div>`;
+      messagesDiv.appendChild(botMessage);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      awaitingCustomPlatform = false;
+      chatState = 'initial';
+    }, 800);
+    return;
+  }
+  
+  // Resposta padrão
+  setTimeout(() => {
+    const botMessage = document.createElement('div');
+    botMessage.className = 'chat-message bot';
+    let response = showInitialMessage();
+    botMessage.innerHTML = `<div class="message-bubble">${response}</div>`;
+    messagesDiv.appendChild(botMessage);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }, 800);
+}
+
+// Mensagem inicial do chatbot
+function showInitialMessage() {
+  chatState = 'initial';
+  return `Verifiquei que sua conta ainda não foi configurada na plataforma. O nosso time de onboarding realizará o primeiro contato até 16h úteis após a compra. Já deu uma olhadinha no seu e-mail? 😉<br><br>Caso deseje falar sobre outro assunto, <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">clique aqui</a>.`;
+}
+
+// Menu principal com todas as 9 opções
+function showMainMenu() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble">
+    Escolha uma das opções abaixo:<br><br>
+    <a href="#" onclick="event.preventDefault(); showPainelVendas();" style="color: #1a73e8; text-decoration: underline; cursor: pointer; display: block; margin: 8px 0;">1 - Falar sobre o painel de vendas</a>
+    <a href="#" onclick="event.preventDefault(); showIntegracoes();" style="color: #1a73e8; text-decoration: underline; cursor: pointer; display: block; margin: 8px 0;">2 - Falar sobre a integração com a plataforma de vendas</a>
+    <a href="#" onclick="event.preventDefault(); showEmissoesCancelamentos();" style="color: #1a73e8; text-decoration: underline; cursor: pointer; display: block; margin: 8px 0;">3 - Falar sobre minhas emissões/cancelamentos negados</a>
+    <a href="#" onclick="event.preventDefault(); showExtrairRelatorios();" style="color: #1a73e8; text-decoration: underline; cursor: pointer; display: block; margin: 8px 0;">4 - Extrair o relatório PDF e XML</a>
+    <a href="#" onclick="event.preventDefault(); showAlterarDados();" style="color: #1a73e8; text-decoration: underline; cursor: pointer; display: block; margin: 8px 0;">5 - Como alterar os meus dados fiscais ou certificado digital?</a>
+    <a href="#" onclick="event.preventDefault(); showConfigurarEndereco();" style="color: #1a73e8; text-decoration: underline; cursor: pointer; display: block; margin: 8px 0;">6 - Configurar endereço padrão para emissão das notas fiscais</a>
+    <a href="#" onclick="event.preventDefault(); showAlteracaoMunicipio();" style="color: #1a73e8; text-decoration: underline; cursor: pointer; display: block; margin: 8px 0;">7 - Realizei alteração de município</a>
+    <a href="#" onclick="event.preventDefault(); showConfigurarNovoTipo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer; display: block; margin: 8px 0;">8 - Preciso realizar configuração de novo tipo de NF</a>
+    <a href="#" onclick="event.preventDefault(); showEmissaoAvulsa();" style="color: #1a73e8; text-decoration: underline; cursor: pointer; display: block; margin: 8px 0;">9 - Consigo realizar uma emissão avulsa?</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// OPÇÃO 1: Painel de Vendas
+function showPainelVendas() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble">
+    <strong>Painel de Vendas</strong><br><br>
+    Escolha uma opção:<br><br>
+    • <a href="#" onclick="event.preventDefault(); showFiltrosResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Precisa de ajuda com aplicação de filtros?</a><br><br>
+    • <a href="#" onclick="event.preventDefault(); showAcoesEmMassaResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Realizar ações em massa</a><br><br>
+    • <a href="#" onclick="event.preventDefault(); showCancelarNotaResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Cancelar uma nota fiscal</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar ao menu</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Filtros do Painel
+function showFiltrosResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #1abc9c; padding-left: 12px;">
+    <strong>Como usar os filtros do painel de vendas</strong><br><br>
+    Os filtros permitem encontrar vendas específicas rapidamente. Você pode filtrar por:<br><br>
+    • Data de emissão<br>
+    • Nome do cliente<br>
+    • Produto vendido<br>
+    • Canal de venda (Hotmart, Kiwify, etc)<br>
+    • Status da nota fiscal<br><br>
+    Basta preencher os campos desejados e clicar em "Aplicar". 📊<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773616019085" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">📄 Abrir artigo completo</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showPainelVendas();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Ações em Massa
+function showAcoesEmMassaResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #1abc9c; padding-left: 12px;">
+    <strong>Realizar ações em massa</strong><br><br>
+    Com as ações em massa, você pode processar várias vendas de uma só vez:<br><br>
+    1. Selecione as vendas usando os checkboxes<br>
+    2. Clique em "Ações em massa"<br>
+    3. Escolha a ação: gerar notas, cancelar, enviar por e-mail, etc<br><br>
+    Isso economiza muito tempo! ⚡<br><br>
+    <a href="#" onclick="event.preventDefault(); showPainelVendas();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Cancelar Nota Fiscal
+function showCancelarNotaResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #1abc9c; padding-left: 12px;">
+    <strong>Como cancelar uma nota fiscal</strong><br><br>
+    Para cancelar uma venda/nota fiscal:<br><br>
+    1. Localize a venda no painel<br>
+    2. Clique nos três pontinhos (⋮) ou botão de ações<br>
+    3. Selecione "Cancelar"<br>
+    4. Informe o motivo do cancelamento<br>
+    5. Confirme a operação<br><br>
+    ⚠️ Atenção: O cancelamento é irreversível!<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773357667213" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">📄 Abrir artigo completo</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showPainelVendas();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// OPÇÃO 2: Integrações com Plataformas
+function showIntegracoes() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble">
+    <strong>Integração com Plataforma de Vendas</strong><br><br>
+    Escolha sua plataforma:<br><br>
+    • <a href="#" onclick="event.preventDefault(); showHotmartResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Hotmart</a><br><br>
+    • <a href="#" onclick="event.preventDefault(); showKiwifyResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Kiwify</a><br><br>
+    • <a href="#" onclick="event.preventDefault(); showEduzzResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Eduzz</a><br><br>
+    • <a href="#" onclick="event.preventDefault(); showOutraPlataforma();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Outra plataforma</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar ao menu</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Hotmart
+function showHotmartResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #ff6b35; padding-left: 12px;">
+    <strong>Integração com Hotmart 🔥</strong><br><br>
+    A integração permite emitir notas fiscais automaticamente para vendas da Hotmart.<br><br>
+    <strong>Você vai precisar:</strong><br>
+    • E-mail cadastrado na Hotmart<br>
+    • Token Hottok (Hot Connect)<br><br>
+    <strong>Passos principais:</strong><br>
+    1. Acesse Ferramentas na Hotmart<br>
+    2. Copie o Webhook URL<br>
+    3. Gere e copie o Hottok<br>
+    4. Cole os dados no eNotas<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773432368909" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">📄 Ver passo a passo completo</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showIntegracoes();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Kiwify
+function showKiwifyResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #00d4aa; padding-left: 12px;">
+    <strong>Integração com Kiwify 🥝</strong><br><br>
+    Conecte sua conta Kiwify ao eNotas para emissão automática de notas fiscais.<br><br>
+    <strong>O que você precisa:</strong><br>
+    • Conta ativa na Kiwify<br>
+    • Token de API da Kiwify<br><br>
+    <strong>Resumo dos passos:</strong><br>
+    1. Acesse Configurações na Kiwify<br>
+    2. Vá em Integrações > API<br>
+    3. Gere seu token de acesso<br>
+    4. Configure no eNotas<br><br>
+    Pronto! As notas serão emitidas automaticamente. ✅<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773471206797" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">📄 Ver tutorial completo</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showIntegracoes();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Eduzz
+function showEduzzResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #7b3fc5; padding-left: 12px;">
+    <strong>Integração com Eduzz 🚀</strong><br><br>
+    Entenda como funciona a coprodução entre eNotas e Eduzz.<br><br>
+    <strong>Importante saber:</strong><br>
+    • A integração é automática para coproduções<br>
+    • Notas são emitidas para o produtor principal<br>
+    • Coprodutores recebem suas comissões já com NF<br><br>
+    <strong>Configuração:</strong><br>
+    1. Ative a integração no painel Eduzz<br>
+    2. Configure seus produtos no eNotas<br>
+    3. Defina as regras de comissão<br><br>
+    Tudo integrado e automatizado! 🎯<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773437963789" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">📄 Entender coprodução Eduzz</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showIntegracoes();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function showOutraPlataforma() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble">Por favor, digite o nome da sua plataforma de vendas:</div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  awaitingCustomPlatform = true;
+}
+
+// OPÇÃO 3: Emissões/Cancelamentos Negados
+function showEmissoesCancelamentos() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble">
+    <strong>Emissões/Cancelamentos Negados</strong><br><br>
+    Escolha uma opção:<br><br>
+    • <a href="#" onclick="event.preventDefault(); showReprocessamentoResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Reprocessamento de notas com erro na emissão</a><br><br>
+    • <a href="#" onclick="event.preventDefault(); showCancelamentoNegadoResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Cancelamento negado</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar ao menu</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Reprocessamento
+function showReprocessamentoResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #e74c3c; padding-left: 12px;">
+    <strong>Reprocessar notas com erro ⚠️</strong><br><br>
+    Quando uma nota apresenta erro na emissão, você pode reprocessá-la após corrigir o problema.<br><br>
+    <strong>Como fazer:</strong><br>
+    1. Identifique a nota com erro no painel<br>
+    2. Verifique qual foi o erro apresentado<br>
+    3. Corrija os dados necessários<br>
+    4. Clique em "Reprocessar" ou "Tentar novamente"<br><br>
+    <strong>Erros comuns:</strong><br>
+    • Dados cadastrais incompletos<br>
+    • Certificado digital vencido<br>
+    • Código de serviço incorreto<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773529645325" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">📄 Ver guia completo de reprocessamento</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showEmissoesCancelamentos();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Cancelamento Negado
+function showCancelamentoNegadoResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #e74c3c; padding-left: 12px;">
+    <strong>Cancelamento Negado 🚫</strong><br><br>
+    Algumas notas não podem ser canceladas automaticamente pela prefeitura.<br><br>
+    <strong>Como filtrar cancelamentos negados:</strong><br>
+    1. Acesse o painel de vendas<br>
+    2. Use o filtro de Status<br>
+    3. Selecione "Cancelamento Negado"<br>
+    4. Visualize a lista de notas<br><br>
+    <strong>O que fazer:</strong><br>
+    • Verifique o motivo da negativa<br>
+    • Entre em contato com a prefeitura se necessário<br>
+    • Solicite suporte ao eNotas para casos complexos<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773410509197" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">📄 Saiba mais sobre cancelamentos negados</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showEmissoesCancelamentos();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// OPÇÃO 4: Extrair Relatórios
+function showExtrairRelatorios() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble">
+    <strong>Extrair Relatórios PDF e XML</strong><br><br>
+    Escolha uma opção:<br><br>
+    • <a href="#" onclick="event.preventDefault(); showRelatorioPeriodoResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Extrair relatórios de um período específico</a><br><br>
+    • <a href="#" onclick="event.preventDefault(); showRelatorioNotaResumo();" style="color: #1a73e8; text-decoration: underline; cursor: pointer;">Apenas de uma nota fiscal</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar ao menu</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Relatório de Período
+function showRelatorioPeriodoResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #3498db; padding-left: 12px;">
+    <strong>Extrair relatórios de período 📊</strong><br><br>
+    Baixe PDFs, XMLs ou CSVs de todas as notas fiscais de um período específico.<br><br>
+    <strong>Como fazer (Visão do Contador):</strong><br>
+    1. Acesse Menu Empresa<br>
+    2. Clique em "Relatórios" ou "Exportar"<br>
+    3. Selecione o período desejado<br>
+    4. Escolha o formato (PDF, XML ou CSV)<br>
+    5. Clique em "Baixar" ou "Exportar"<br><br>
+    <strong>Formatos disponíveis:</strong><br>
+    • PDF - Para impressão e visualização<br>
+    • XML - Para importar em sistemas contábeis<br>
+    • CSV - Para análises em planilhas<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773346958221" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">📄 Tutorial completo de exportação</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showExtrairRelatorios();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Resumo: Relatório de Nota Específica
+function showRelatorioNotaResumo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #3498db; padding-left: 12px;">
+    <strong>Acessar PDF de nota específica 📄</strong><br><br>
+    Baixe ou visualize o PDF de uma única nota fiscal.<br><br>
+    <strong>Passo a passo:</strong><br>
+    1. Localize a nota no painel de vendas<br>
+    2. Clique no ícone de "Visualizar" ou "⋮"<br>
+    3. Selecione "Ver PDF" ou "Baixar PDF"<br>
+    4. O arquivo será aberto/baixado<br><br>
+    <strong>Dica rápida:</strong><br>
+    Você também pode clicar direto no número da nota para visualizá-la! 🚀<br><br>
+    <strong>Precisa do XML?</strong><br>
+    Use a mesma opção e escolha "Baixar XML"<br><br>
+    <a href="https://atendimento.enotas.com.br/hc/pt-br/articles/35773301267213" target="_blank" rel="noopener" style="color: #1a73e8; text-decoration: underline;">📄 Ver tutorial com imagens</a><br><br>
+    <a href="#" onclick="event.preventDefault(); showExtrairRelatorios();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// OPÇÃO 5: Alterar Dados Fiscais
+function showAlterarDados() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #f39c12; padding-left: 12px;">
+    <strong>Alterar dados fiscais ou certificado digital 🔐</strong><br><br>
+    Para alterações em dados fiscais ou certificado digital, nossa equipe de suporte precisará auxiliá-lo devido à sensibilidade dessas informações.<br><br>
+    <strong>O que pode ser alterado:</strong><br>
+    • Razão social<br>
+    • CNPJ/CPF<br>
+    • Endereço fiscal<br>
+    • Certificado digital (renovação/atualização)<br>
+    • Regime tributário<br><br>
+    <strong>Entre em contato:</strong><br>
+    📧 E-mail: <strong>suporte@enotas.com.br</strong><br>
+    💬 Chat no painel (horário comercial)<br><br>
+    ⚠️ <strong>Importante:</strong> Tenha em mãos os documentos atualizados!<br><br>
+    <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar ao menu</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// OPÇÃO 6: Configurar Endereço Padrão
+function showConfigurarEndereco() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #9b59b6; padding-left: 12px;">
+    <strong>Configurar endereço padrão 📍</strong><br><br>
+    O endereço padrão é usado automaticamente na emissão de todas as suas notas fiscais.<br><br>
+    <strong>Como configurar:</strong><br>
+    1. Acesse o <strong>Menu Empresa</strong><br>
+    2. Clique em <strong>Configurações</strong><br>
+    3. Vá em <strong>Endereço Padrão</strong><br>
+    4. Preencha os campos:<br>
+       • CEP<br>
+       • Logradouro<br>
+       • Número<br>
+       • Complemento (se houver)<br>
+       • Bairro<br>
+       • Cidade e Estado<br>
+    5. Clique em <strong>Salvar</strong><br><br>
+    ✅ Pronto! Todas as novas notas usarão este endereço.<br><br>
+    Precisa de mais ajuda? Entre em contato com nosso suporte.<br><br>
+    <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar ao menu</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// OPÇÃO 7: Alteração de Município
+function showAlteracaoMunicipio() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #e67e22; padding-left: 12px;">
+    <strong>Alteração de município 🏢➡️🏢</strong><br><br>
+    Mudou sua empresa de cidade? Este processo requer atenção especial!<br><br>
+    <strong>O que precisa ser atualizado:</strong><br>
+    • Inscrição municipal (nova cidade)<br>
+    • Certificado digital (mesmo CNPJ, novo município)<br>
+    • Endereço fiscal completo<br>
+    • Configurações de impostos (podem variar)<br><br>
+    <strong>Documentos necessários:</strong><br>
+    • Alvará da nova cidade<br>
+    • Nova inscrição municipal<br>
+    • Certificado digital atualizado<br>
+    • Comprovante de endereço<br><br>
+    <strong>Como proceder:</strong><br>
+    📧 Entre em contato: <strong>suporte@enotas.com.br</strong><br>
+    Nossa equipe fará todo o processo de migração com você! 🤝<br><br>
+    <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar ao menu</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// OPÇÃO 8: Configurar Novo Tipo de NF
+function showConfigurarNovoTipo() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #16a085; padding-left: 12px;">
+    <strong>Configurar novo tipo de NF 📋</strong><br><br>
+    Precisa emitir um tipo diferente de nota fiscal? Podemos ajudar!<br><br>
+    <strong>Tipos de nota disponíveis:</strong><br>
+    • NFS-e (Serviços)<br>
+    • NF-e (Produtos)<br>
+    • NFC-e (Consumidor)<br>
+    • CT-e (Transporte)<br><br>
+    <strong>Cada município tem suas regras!</strong><br>
+    As configurações variam conforme:<br>
+    • Legislação local<br>
+    • Sistema da prefeitura<br>
+    • Atividade da empresa<br>
+    • Regime tributário<br><br>
+    <strong>Solicite configuração:</strong><br>
+    📧 E-mail: <strong>suporte@enotas.com.br</strong><br>
+    Informe qual tipo de NF você precisa configurar!<br><br>
+    Nossa equipe técnica fará toda a configuração para você. 👨‍💻<br><br>
+    <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar ao menu</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// OPÇÃO 9: Emissão Avulsa
+function showEmissaoAvulsa() {
+  const messagesDiv = document.getElementById('chatbotMessages');
+  const botMessage = document.createElement('div');
+  botMessage.className = 'chat-message bot';
+  botMessage.innerHTML = `<div class="message-bubble" style="border-left: 3px solid #27ae60; padding-left: 12px;">
+    <strong>Emissão avulsa de nota fiscal ✍️</strong><br><br>
+    Sim! Você pode emitir notas fiscais manualmente através do menu:<br>
+    <strong>Vendas → Nova Venda Manual</strong><br><br>
+    <strong>Passo a passo:</strong><br>
+    1. Clique em <strong>"Nova Venda Manual"</strong><br>
+    2. Preencha os dados do <strong>cliente</strong>:<br>
+       • Nome/Razão Social<br>
+       • CPF/CNPJ<br>
+       • E-mail<br>
+       • Endereço<br>
+    3. Adicione o <strong>produto/serviço</strong>:<br>
+       • Descrição<br>
+       • Código de serviço<br>
+       • Valor<br>
+    4. Revise os dados<br>
+    5. Clique em <strong>"Emitir Nota Fiscal"</strong><br><br>
+    ✅ Pronto! A nota será emitida na hora e enviada por e-mail automaticamente. 😊<br><br>
+    <strong>Dica:</strong> Salve clientes frequentes para facilitar emissões futuras!<br><br>
+    <a href="#" onclick="event.preventDefault(); showMainMenu();" style="color: #7b3fc5; text-decoration: underline; cursor: pointer; font-size: 12px;">← Voltar ao menu</a>
+  </div>`;
+  messagesDiv.appendChild(botMessage);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Funções auxiliares
+function toggleChatbot() {
+  const chatWindow = document.getElementById('chatbotWindow');
+  chatWindow.classList.toggle('open');
+  if (chatWindow.classList.contains('open')) {
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function handleChatKeyPress(event) {
+  if (event.key === 'Enter') {
+    sendChatMessage();
+  }
+}
